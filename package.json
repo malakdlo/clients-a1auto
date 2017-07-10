@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "?.git"
+    "url": "https://github.com/malakdlo/clients-a1auto"
   },
   "author": "Malak Lopez",
   "license": "ISC",
@@ -20,8 +20,15 @@
     "gulp-concat": "^2.6.1",
     "gulp-connect": "^5.0.0",
     "gulp-css-scss": "^0.1.0",
+    "gulp-if": "^2.0.2",
+    "gulp-imagemin": "^3.3.0",
+    "gulp-jsonminify": "^1.0.0",
     "gulp-minify": "^1.0.0",
+    "gulp-minify-html": "^1.0.6",
+    "gulp-open": "^2.0.0",
     "gulp-ruby-sass": "^2.1.1",
-    "gulp-util": "^3.0.8"
+    "gulp-uglify": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "imagemin-pngcrush": "^5.1.0"
   }
 }
