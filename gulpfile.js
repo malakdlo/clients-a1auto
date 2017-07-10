@@ -68,21 +68,22 @@ var htmlSources = [outputDir + '*.html'];
 gulp.task('js', function(){
   gulp.src(jsSources)
     .pipe(gconcat('scripts.js'))
-    .pipe(gulpif(env === 'prod', uglify()))
+    .pipe(gulpif(env==='prod', uglify()))
     .pipe(gulp.dest(outputDir + 'js'))
     .pipe(connect.reload())
 });
 
 gulp.task('fontAwesome', function(){
   sass(fontAwesomeSources)
-    .on('error', sass.logError)
+      .on('error', sass.logError)
     .pipe(gulp.dest(outputDir + 'fonts'))
     .pipe(connect.reload())
 });
 
 gulp.task('style', function(){
   sass('components/sass/style/style.scss')
-    .on('error', sass.logError)
+      .on('error', sass.logError)
+    .pipe(gulpif(env==='prod', gminify()))
     .pipe(gulp.dest(outputDir + 'css'))
     .pipe(connect.reload())
 });
