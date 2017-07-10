@@ -88,7 +88,9 @@ gulp.task('style', function(){
 });
 
 gulp.task('html', function(){
-  gulp.src(htmlSources)
+  gulp.src('builds/dev/*.html')
+    .pipe(gulpif(env === 'prod', minifyHTML()))
+    .pipe(gulpif(env === 'prod', gulp.dest(outputDir)))
     .pipe(connect.reload())
 });
 
@@ -134,7 +136,7 @@ gulp.task('compass', function() {
 gulp.task('watch', function(){
   gulp.watch(jsSources, ['js']);
   gulp.watch('components/sass/style/*.scss', ['style']);
-  gulp.watch(htmlSources, ['html']);
+  gulp.watch('builds/dev/*.html', ['html']);
 });
 
 // Setup a local server to auto reload whenever changes are made to tasks that end with connect.reload()
