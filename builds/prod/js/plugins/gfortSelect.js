@@ -1,3 +1,10 @@
+/*
+gfortSelect
+Description: convert default select style to google material design by Graphicfort
+Version: 1.0
+Author: Graphicfort
+Author URL: http://graphicfort.com
+*/
 /*global $*/
 (function ($) {
 

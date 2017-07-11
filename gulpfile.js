@@ -48,9 +48,10 @@ var browser = os.platform() === 'linux' ? 'google-chrome' : (
 /**** Files ****/
 // Components
 var coffeeSources = ['components/coffee/tagline.coffee'];
-var jsSources = ['components/scripts/mainScripts.js', 'components/scripts/modernizr-custom.js', 'components/scripts/bootstrap.js', 'components/scripts/mobile.js', 'components/scripts/css/swiper/swiper.jquery.js'];
+var jsSources = ['components/scripts/mainScripts.js', 'components/scripts/modernizr-custom.js', 'components/scripts/bootstrap.js', 'components/scripts/mobile.js', 'components/scripts/css/swiper/swiper.jquery.js', 'components/scripts/social/yelp.js'];
 var fontAwesomeSources = ['components/sass/font-awesome/font-awesome.scss'];
 var sassSources = ['components/sass/style.scss'];
+
 
 // Static
 var cssSources = [outputDir + 'css/plugins/swiper/css/swiper.css'];
@@ -73,6 +74,12 @@ gulp.task('js', function(){
     .pipe(connect.reload())
 });
 
+gulp.task('json', function(){
+  gulp.src('builds/dev/js/json/**/*.json')
+    .pipe(gulpif(env === 'prod', jsonminify()))
+    .pipe(gulpif(env === 'prod', gulp.dest(outputDir + 'js/json')))
+});
+
 gulp.task('fontAwesome', function(){
   sass(fontAwesomeSources)
       .on('error', sass.logError)
@@ -92,6 +99,17 @@ gulp.task('html', function(){
   gulp.src('builds/dev/*.html')
     .pipe(gulpif(env === 'prod', minifyHTML()))
     .pipe(gulpif(env === 'prod', gulp.dest(outputDir)))
+    .pipe(connect.reload())
+});
+
+gulp.task('images', function(){
+  gulp.src('builds/dev/images/**/*.*')
+    .pipe(gulpif(env === 'prod', imagemin([
+      imagemin.jpegtran({ progressive: true }),
+      imagemin.optipng({ optimizationLevel : 5 }),
+      imagemin.svgo({ plugins: [{ removeViewBox: true }]})
+    ], { verbose: true })))
+    .pipe(gulpif(env === 'prod', gulp.dest(outputDir + 'images')))
     .pipe(connect.reload())
 });
 
@@ -138,6 +156,8 @@ gulp.task('watch', function(){
   gulp.watch(jsSources, ['js']);
   gulp.watch('components/sass/style/*.scss', ['style']);
   gulp.watch('builds/dev/*.html', ['html']);
+  gulp.watch('builds/dev/images/**/*.*', ['images']);
+  gulp.watch('builds/dev/js/json/**/*.json', ['json']);
 });
 
 // Setup a local server to auto reload whenever changes are made to tasks that end with connect.reload()
@@ -159,9 +179,5 @@ gulp.task('open', ['connect'], function(){
 });
 
 
-gulp.task('default', ['html', 'js', 'style', 'fontAwesome', 'watch', 'connect']);
+gulp.task('default', ['html', 'js', 'json', 'style', 'fontAwesome', 'images', 'watch', 'connect']);
 
-
-
-//     .pipe(browserify())
-//    .pipe(gminify())
