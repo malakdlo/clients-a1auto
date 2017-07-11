@@ -49,16 +49,21 @@
 }
 
 .items {
-  margin: 15px 0;
+  margin: 15px 5px 0 0;
 }
 
-.usd, .cents {
-  font-size: 20px;
+.usd {
+  font-size: 30px;
+}
+
+.cents {
+  font-size: 30px;
+  margin-right: 5px;
 }
 
 .number {
   font-size: 40px;
-  font-weight: 700;
+  font-weight: 200;
 }
 
 sup {
