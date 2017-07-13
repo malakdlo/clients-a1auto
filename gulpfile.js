@@ -13,6 +13,7 @@ var os = require('os'),
     gulpif = require('gulp-if'),
     uglify = require('gulp-uglify'),
     minifyHTML = require('gulp-minify-html'),
+    minifyCss = require('gulp-cssmin'),
     jsonminify = require('gulp-jsonminify'),
     imagemin = require('gulp-imagemin'),
     pngcrush = require('imagemin-pngcrush');
@@ -48,9 +49,15 @@ var browser = os.platform() === 'linux' ? 'google-chrome' : (
 /**** Files ****/
 // Components
 var coffeeSources = ['components/coffee/tagline.coffee'];
-var jsSources = ['components/scripts/mainScripts.js', 'components/scripts/modernizr-custom.js', 'components/scripts/bootstrap.js', 'components/scripts/mobile.js', 'components/scripts/css/swiper/swiper.jquery.js', 'components/scripts/social/yelp.js'];
+var jsSources = ['components/scripts/mainScripts.js', 
+                 'components/scripts/modernizr-custom.js', 
+                 'components/scripts/bootstrap.js', 
+                 'components/scripts/mobile.js', 
+                 'components/scripts/css/swiper/swiper.jquery.js', 
+                 'components/scripts/social/yelp.js'];
+
 var fontAwesomeSources = ['components/sass/font-awesome/font-awesome.scss'];
-var sassSources = ['components/sass/style.scss'];
+var sassSources = ['components/sass/style.scss', 'components/sass/font-awesome/font-awesome.scss'];
 
 
 // Static
@@ -74,23 +81,11 @@ gulp.task('js', function(){
     .pipe(connect.reload())
 });
 
-gulp.task('json', function(){
-  gulp.src('builds/dev/js/json/**/*.json')
-    .pipe(gulpif(env === 'prod', jsonminify()))
-    .pipe(gulpif(env === 'prod', gulp.dest(outputDir + 'js/json')))
-});
-
-gulp.task('fontAwesome', function(){
-  sass(fontAwesomeSources)
-      .on('error', sass.logError)
-    .pipe(gulp.dest(outputDir + 'fonts'))
-    .pipe(connect.reload())
-});
 
 gulp.task('style', function(){
-  sass('components/sass/style/style.scss')
+  sass('components/sass/**/*.scss')
       .on('error', sass.logError)
-    .pipe(gulpif(env==='prod', gminify()))
+    .pipe(gulpif(env==='prod', minifyCss()))
     .pipe(gulp.dest(outputDir + 'css'))
     .pipe(connect.reload())
 });
@@ -106,12 +101,37 @@ gulp.task('images', function(){
   gulp.src('builds/dev/images/**/*.*')
     .pipe(gulpif(env === 'prod', imagemin([
       imagemin.jpegtran({ progressive: true }),
-      imagemin.optipng({ optimizationLevel : 5 }),
+      imagemin.optipng({optimizationLevel: 5}),
       imagemin.svgo({ plugins: [{ removeViewBox: true }]})
     ], { verbose: true })))
     .pipe(gulpif(env === 'prod', gulp.dest(outputDir + 'images')))
     .pipe(connect.reload())
 });
+
+// For Minifying Remaining Files Not Preprocessed or Combined
+gulp.task('minifyJs', function(){
+  gulp.src('builds/dev/js/**/*.js')
+    .pipe(gulpif(env === 'prod', gminify({
+      ext: {
+        min: '.js'
+      },
+      ignoreFiles: ['-min.js'],
+      noSource: true
+    })))
+    .pipe(gulpif(env === 'prod', gulp.dest(outputDir + 'js')))
+});
+
+gulp.task('minifyCss', function(){
+  gulp.src('builds/dev/css/**/*.css')
+    .pipe(gulpif(env === 'prod', minifyCss()))
+    .pipe(gulpif(env === 'prod', gulp.dest(outputDir + 'css')))
+})
+
+gulp.task('minifyJson', function(){
+  gulp.src('builds/dev/js/json/**/*.json')
+    .pipe(gulpif(env === 'prod', jsonminify()))
+    .pipe(gulpif(env === 'prod', gulp.dest(outputDir + 'js/json')))
+})
 
 /**** Optional ****/
 
@@ -157,7 +177,7 @@ gulp.task('watch', function(){
   gulp.watch('components/sass/style/*.scss', ['style']);
   gulp.watch('builds/dev/*.html', ['html']);
   gulp.watch('builds/dev/images/**/*.*', ['images']);
-  gulp.watch('builds/dev/js/json/**/*.json', ['json']);
+  gulp.watch('builds/dev/js/json/**/*.json', ['minifyJson']);
 });
 
 // Setup a local server to auto reload whenever changes are made to tasks that end with connect.reload()
@@ -179,5 +199,5 @@ gulp.task('open', ['connect'], function(){
 });
 
 
-gulp.task('default', ['html', 'js', 'json', 'style', 'fontAwesome', 'images', 'watch', 'connect']);
+gulp.task('default', ['html', 'js', 'style', 'images', 'minifyJs', 'minifyCss', 'minifyJson', 'watch', 'connect']);
 
